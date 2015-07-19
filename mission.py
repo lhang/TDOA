@@ -2,6 +2,7 @@
 import MySQLdb
 import re
 import time
+import account
 
 import data
 
@@ -222,3 +223,17 @@ def mission_sta_change(mission_id ,mission_status):
 	cursor.execute("update mission set mission_status = %s where mission_id = '%s';"%(mission_status.encode('utf-8'), mission_id))
 	conn.commit()
 	conn.close()
+
+def mission_search_list(user, arg):
+	c = data.SQLconn()
+	conn = MySQLdb.connect(host=c["host"], user=c["user"], passwd=c["passwd"], charset=c["charset"], db=c["db"])
+	cursor = conn.cursor(cursorclass = MySQLdb.cursors.DictCursor)
+	account_list = account.account_list()
+	account_list = list(account_list)
+	print account_list, 'zhiqian###################'
+	for i in account_list:
+		if not data.permission_check(user, i['account_name'], 'mission'):
+			account_list.remove(i)
+	print account_list
+
+	# return mission_list
