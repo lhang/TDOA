@@ -30,17 +30,25 @@ def get_calendar_data(arg):
   	c = SQLconn()
 	conn = MySQLdb.connect(host=c["host"], user=c["user"], passwd=c["passwd"], charset=c["charset"], db=c["db"])
 	cursor = conn.cursor(cursorclass = MySQLdb.cursors.DictCursor)
-	# print "connect mysql"
-	print arg.account, arg.start, arg.end
-	cursor.execute("SELECT mission_name, mission_id, mission_starttime, mission_plan_end_time FROM MISSION\
-		WHERE mission_doer = '%s' AND mission_starttime BETWEEN '%s' AND '%s' OR mission_plan_end_time\
-		 BETWEEN '%s' AND '%s'"\
-		 %(arg.account, arg.start, arg.end, arg.start, arg.end))
-	calendar_data = cursor.fetchall()
-	calendar_list = list(calendar_data)
-	conn.close()
-	# print calendar_list
-	return calendar_data
+	cursor.execute("SELECT mission_id, mission_status FROM MISSIONS_DOERS WHERE mission_doer = '%s'"% arg.account)
+	mission_id_list = list(cursor.fetchall())
+	calendar_list = list()
+	# 循环查找mission和history_mission
+	for i in mission_id_list:
+		# 如果任务状态是已完成，从history_mission里找
+		if i['mission_status'] == '已完成':
+			cursor.execute("SELECT mission_name, mission_id, mission_starttime, mission_plan_end_time FROM HISTORY_MISSION\
+				WHERE mission_id = '%s' AND mission_starttime BETWEEN '%s' AND '%s' OR mission_plan_end_time\
+				 BETWEEN '%s' AND '%s'"\
+				 %(i['mission_id'], arg.start, arg.end, arg.start, arg.end))
+		# 如果任务状态是其他的，从misssion里找
+		else:
+			cursor.execute("SELECT mission_name, mission_id, mission_starttime, mission_plan_end_time FROM MISSION\
+				WHERE mission_id = '%s' AND mission_starttime BETWEEN '%s' AND '%s' OR mission_plan_end_time\
+				 BETWEEN '%s' AND '%s'"\
+				 %(i['mission_id'], arg.start, arg.end, arg.start, arg.end))
+		calendar_list += cursor.fetchall()
+	return calendar_list
 	
 
 
