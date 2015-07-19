@@ -228,12 +228,32 @@ def mission_search_list(user, arg):
 	c = data.SQLconn()
 	conn = MySQLdb.connect(host=c["host"], user=c["user"], passwd=c["passwd"], charset=c["charset"], db=c["db"])
 	cursor = conn.cursor(cursorclass = MySQLdb.cursors.DictCursor)
+
 	account_list = account.account_list()
 	account_list = list(account_list)
-	print account_list, 'zhiqian###################'
 	for i in account_list:
 		if not data.permission_check(user, i['account_name'], 'mission'):
 			account_list.remove(i)
-	print account_list
 
-	# return mission_list
+	mission_list = list()
+	for i in account_list:
+		cursor.execute("SELECT mission_id, mission_status FROM missions_doers WHERE\
+			mission_doer = '%s'" % i['account_name'])
+		mission_id_list = list(cursor.fetchall())
+		mission_list_temp = list()
+		for j in mission_id_list:
+			if j['mission_status'] == '已完成':
+				cursor.execute("SELECT mission_name, mission_publisher, mission_starttime,\
+				mission_plan_end_time FROM history_MISSION WHERE misison_id = '%s'" % j['mission_id'])
+			else:
+				cursor.execute("SELECT mission_name, mission_publisher, mission_starttime,\
+				mission_plan_end_time FROM MISSION WHERE misison_id = '%s'" % j['mission_id'])
+			mission_list_temp += list(cursor.fetchall())
+		print 'mission_list_temp:', mission_list_temp
+		for k in mission_list_temp:
+			k['mission_doer'] = i['account_name']
+		mission_list += mission_list_temp
+
+		print 'mission_list:', mission_list
+
+	return mission_list

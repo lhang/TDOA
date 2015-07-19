@@ -489,12 +489,11 @@ class search(object):
 	def GET(self):
 		if session.login == 1:
 			if session.user:
-				mission_list = mission.mission_search_list(session.user, 'all')
 				return render_template(
 					type=session.type,
 					template_name='search.html',
-					mission_list = mission_list,
-					account_list = account.account_list
+					mission_list = mission.mission_search_list(session.user, 'all'),
+					account_list = account.account_list()
 					)
 			else:return json.dumps({"statusCode":"301", "message":"会话超时，请重新登录"})
 		else:return json.dumps({"statusCode":"301", "message":"会话超时，请重新登录"})
