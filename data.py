@@ -8,7 +8,8 @@ from PIL import Image, ImageFont, ImageDraw, ImageColor
 
 def SQLconn():
 	#SQL连接参数
-	conn = {"host":"localhost", "user":"root", "passwd":"1234", "charset":"utf8", "db":"tdoa"}
+	#conn = {"host":"localhost", "user":"root", "passwd":"1234", "charset":"utf8", "db":"tdoa"}
+	conn = {"host":"https://qdm157632221.my3w.com", "user":"qdm157632221", "passwd":"hongyan0408", "charset":"utf8", "db":"qdm157632221_db"}
 
 
 	return conn
